@@ -22,14 +22,21 @@ if __name__ == "__main__":
         )
     elif sys.argv[1] == "--hardware":
         rob = HardwareRobobo(camera=True)
+         # Define proximity threshold for hardware
+        threshold = 50
+
+
     elif sys.argv[1] == "--simulation":
         rob = SimulationRobobo()
+        # Define proximity threshold for simulation
+        threshold = 150
+
     else:
         raise ValueError(f"{sys.argv[1]} is not a valid argument.")
 
     # Initialize variables
     repetitions = 5
-    obstacle_detections_per_repetition = 10
+    obstacle_detections_per_repetition = 100
     all_sensor_data = []  # To store sensor data across repetitions
 
     for repetition in range(repetitions):
@@ -42,8 +49,7 @@ if __name__ == "__main__":
             irs = rob.read_irs()
             print("IRS readings:", irs)
 
-            # Define proximity threshold
-            threshold = 150
+
             obstacle_detected = any(value > threshold for value in irs)
 
             if obstacle_detected:
@@ -73,9 +79,8 @@ if __name__ == "__main__":
         all_sensor_data.append(sensor_data_per_repetition)
         print(f"Finished repetition {repetition + 1}")
 
-
-
-    output_file = "/Users/Antonis/Desktop/sensor_data.json"
+    # Save all data to a JSON file
+    output_file = "sensor_data.json"
     with open(output_file, "w") as f:
         json.dump(all_sensor_data, f, indent=4)
     print(f"Sensor data saved to {output_file}")
