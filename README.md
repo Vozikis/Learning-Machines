@@ -1,25 +1,88 @@
-# Learning Machines Robobo
+## Instructions for Installing and Running the Simulator
 
-This is the GitHub repository for the Learning Machines course.
+Follow these steps to install and run the robot simulator:
 
-If you're a student, everything you need for the course itself is in the [examples](https://github.com/ci-group/learning_machines_robobo/tree/master/examples) directory. It contains all the documentation and code you need. Just clone this repository, cd into examples, and start at that readme, which will guide you through the whole thing.
+1. **Clone the Repository:**
 
-### There is an issue/bug with the code.
+   ```shell
+   git clone https://github.com/ci-group/learning_machines_robobo.git
+   cd learning_machines_robobo
+   ```
 
-If you find a problem with the code, please create an issue [here](https://github.com/ci-group/learning_machines_robobo/issues) on the GitHub repository. For this, please make sure you include these three things:
+2. **Install Python 3.8:**
 
-- Some example code with instructions on how to run and include it. This should preferably be a minimum failing example, just linking to your entire assignment won't cut it. You might think this is a lot of extra work, but the amount of times I personally found a bug in my own code by trying to construct an example like this is staggering. It's a really good test to make sure that what you think is happening is actually what is happening. Also, it helps whoever wants to fix it understand what is going wrong.
-- The behaviour you would expect from this minimum failing example. No "it should work," be specific in what output you expect.
-- The actual behaviour you observed, and that anyone can observe by running the example code you provided. Here, also provide the platform you ran it under, in case it cannot be reproduced.
+   - You can use specific Python versions with `pyenv` or `brew`, depending on how you set up Python.
 
-## Contributing / maintaining
+     - Note that annaconda (and other distributions which do more than just shill the executable,) may not work.
 
-If you are working on the project, you should notice that all code you write yourself should be in `maintained/`. All code in the examples is automatically generated (or, well, copied over) from there. This architecture is quite weird, but I couldn't find a better option. Because everything is ROS, it is hard to distribute the individual packages without having to teach students how to install ROS packages, making the code too much of a black box. Alternatively, having only one template (e.g. only `full_project_setup`), which is what was here before, has issues with documentation, as that makes it quite a large project to just dump students into. With the way it currently is, everything is in one place while maintaining, but students can still cd from example to example to explore the codebase.
+   - Create a venv, and install dependencies:
 
-To work on the project, first, `cd` into maintained. Here, you can edit the code and test it, (though it might be easier to test it inside the directory of the relevant example.) Once you are confident it is good, you can type `python3 ./build.py`, this will copy all files over to the right examples. If you created new scripts or catkin packages, this build script is also where to make the needed changes to always copy over the files to the appropriate examples. The build script will ask for confirmation for every file it wants to delete. If you're confident everything is backed up, you can pass the `-y` flag to answer yes to all prompts.
+   ```shell
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-After you have built, it is important to go through the READMEs in the examples, and assert all of them are still correct.
+3. **Install Docker Desktop:**
 
-If you change anything with the docker setup or run scripts it is important to test everything under Linux (X11), Windows, and MacOS before pushing to master, making sure the behaviour is consistent.
+   - Refer to [the docs](https://docs.docker.com/desktop/install/mac-install/) for assistance.
+   - If you have an Apple silicon mac, make sure to enable experimental features in the Docker Desktop settings, and, under "Resources", set the amount of CPUs (which is to say, nr of cores) Docker is allowed to use to 1 (Note: This might not be needed on your machine, but 1 is the only value at which it is fully stable on all systems.)
 
-If you changed the Lua scripts, make sure to update all affected models and scenes to match. This is quite tedious, and if you find a way to automate it, please let me know.
+4. **Setup CoppeliaSim:**
+   - Download the educational version of CoppeliaSim from their [website](https://www.coppeliarobotics.com/downloads).
+   - Make sure to download the version for your hardware (Intel mac or M-chip mac).
+   - Copy or move the `.app` to `learning_machines_robobo/examples/full_project_setup/coppeliaSim.app`, which you should be able to click-to-run.
+   - Your PC might tell you it cannot verify the integrity of the app and refuse to run it. To give it permissions anyway, open finder in the current directory (with `open .`), and control-click the application to show the menu that lets you overwrite these settings.
+
+## Running the Simulator
+
+Once everything is downloaded, you can start the simulator:
+
+### 1. Update `scripts/setup.bash` with Your IP Address
+
+On your terminal, run:
+
+```shell
+ipconfig getifaddr en0
+```
+
+Update the line in `scripts/setup.bash`:
+
+```bash
+export COPPELIA_SIM_IP="your.ip.address"
+```
+
+This command might not work, if it doesn't, find your IP another way. Google will come up with several options, at least one of which should work.
+
+### 2. Start CoppeliaSim
+
+Assuming you are currently in `learning_machines_robobo/examples/full_project_setup/`, run the following command on your terminal (with the venv active):
+
+```shell
+zsh ./scripts/start_coppelia_sim.zsh ./scenes/Robobo_Scene.ttt
+```
+
+_Note: The scene that CoppeliaSim starts with is specified here._
+
+### 3. Running the Code
+
+- Launch Docker Engine.
+- Depending on if you have an Apple Scillicon mac or an Intel mac:
+
+```shell
+# Running on an Intel mac
+bash ./scripts/run.sh --simulation
+
+# Running on an Apple Scillicon mac
+zsh ./scripts/run_apple_sillicon.zsh --simulation
+```
+
+_Note: The executed code is located at_ `full_project_setup/catkin_ws/src/learning_machines/scripts/learning_robobo_controller.py` _and_ `full_project_setup/catkin_ws/src/learning_machines/src/learning_machines/test_actions.py`.
+
+_Note: The docker build takes a while. After it successfully runs, you should see the Robobo move the phone, and the following in your terminal:_
+
+<p allign="center">
+  <img src="./assets/resulting_print.png" />
+</p>
+
+Congratulations! You've successfully completed the setup.
