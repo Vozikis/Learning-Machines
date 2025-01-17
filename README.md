@@ -1,25 +1,162 @@
-# Learning Machines Robobo
+# Instructions for Installing and Running the Simulator
 
-This is the GitHub repository for the Learning Machines course.
+This guide provides step-by-step instructions to set up and run the robot simulator on both macOS and Windows platforms.
 
-If you're a student, everything you need for the course itself is in the [examples](https://github.com/ci-group/learning_machines_robobo/tree/master/examples) directory. It contains all the documentation and code you need. Just clone this repository, cd into examples, and start at that readme, which will guide you through the whole thing.
+---
 
-### There is an issue/bug with the code.
+## Prerequisites
 
-If you find a problem with the code, please create an issue [here](https://github.com/ci-group/learning_machines_robobo/issues) on the GitHub repository. For this, please make sure you include these three things:
+- **Python 3.8**
+- **Docker Desktop**
+- **CoppeliaSim Educational Version**
 
-- Some example code with instructions on how to run and include it. This should preferably be a minimum failing example, just linking to your entire assignment won't cut it. You might think this is a lot of extra work, but the amount of times I personally found a bug in my own code by trying to construct an example like this is staggering. It's a really good test to make sure that what you think is happening is actually what is happening. Also, it helps whoever wants to fix it understand what is going wrong.
-- The behaviour you would expect from this minimum failing example. No "it should work," be specific in what output you expect.
-- The actual behaviour you observed, and that anyone can observe by running the example code you provided. Here, also provide the platform you ran it under, in case it cannot be reproduced.
+---
 
-## Contributing / maintaining
+## 1. Clone the Repository
 
-If you are working on the project, you should notice that all code you write yourself should be in `maintained/`. All code in the examples is automatically generated (or, well, copied over) from there. This architecture is quite weird, but I couldn't find a better option. Because everything is ROS, it is hard to distribute the individual packages without having to teach students how to install ROS packages, making the code too much of a black box. Alternatively, having only one template (e.g. only `full_project_setup`), which is what was here before, has issues with documentation, as that makes it quite a large project to just dump students into. With the way it currently is, everything is in one place while maintaining, but students can still cd from example to example to explore the codebase.
+```shell
+# Command for both platforms
+git clone https://github.com/ci-group/learning_machines_robobo.git
+cd learning_machines_robobo
+```
 
-To work on the project, first, `cd` into maintained. Here, you can edit the code and test it, (though it might be easier to test it inside the directory of the relevant example.) Once you are confident it is good, you can type `python3 ./build.py`, this will copy all files over to the right examples. If you created new scripts or catkin packages, this build script is also where to make the needed changes to always copy over the files to the appropriate examples. The build script will ask for confirmation for every file it wants to delete. If you're confident everything is backed up, you can pass the `-y` flag to answer yes to all prompts.
+---
 
-After you have built, it is important to go through the READMEs in the examples, and assert all of them are still correct.
+## 2. Install Python 3.8
 
-If you change anything with the docker setup or run scripts it is important to test everything under Linux (X11), Windows, and MacOS before pushing to master, making sure the behaviour is consistent.
+### macOS:
 
-If you changed the Lua scripts, make sure to update all affected models and scenes to match. This is quite tedious, and if you find a way to automate it, please let me know.
+1. Ensure Python 3.8 is installed. Use tools like `pyenv` or `brew` to install the correct version.
+2. Create a virtual environment and install dependencies:
+
+   ```shell
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+### Windows:
+
+1. Ensure Python 3.8 is installed and accessible via the `py` launcher.
+2. Create a virtual environment and install dependencies:
+
+   ```powershell
+   py -3.8 -m venv .venv
+   .venv\Scripts\Activate.ps1
+   python -m pip install -r requirements.txt
+   ```
+
+---
+
+## 3. Install Docker Desktop
+
+### macOS:
+
+- Install Docker Desktop. Refer to the [Docker Docs for macOS](https://docs.docker.com/desktop/install/mac-install/).
+- For Apple Silicon Macs, enable experimental features in Docker settings and limit Docker to 1 CPU core under "Resources" if stability issues occur.
+
+### Windows:
+
+- Install Docker Desktop with WSL2 and enable hardware virtualization.
+- Refer to the [Docker Docs for Windows](https://docs.docker.com/desktop/install/windows-install/).
+
+---
+
+## 4. Setup CoppeliaSim
+
+1. Download the educational version of CoppeliaSim from their [official website](https://www.coppeliarobotics.com/downloads).
+
+### macOS:
+
+- Download the appropriate version for your hardware (Intel or Apple Silicon).
+- Move the `.app` file to `learning_machines_robobo/examples/full_project_setup/coppeliaSim.app`.
+- If macOS blocks the app, use Finder to grant permissions: control-click the app and override the settings.
+
+### Windows:
+
+- Download the zip file for Windows.
+- Extract it to `learning_machines_robobo\examples\full_project_setup\CoppeliaSim`.
+
+---
+
+## 5. Configure IP Address
+
+1. Update `scripts/setup.bash` with your machine's IP address.
+
+### macOS:
+
+Run the following command to find your IP address:
+
+```shell
+ipconfig getifaddr en0
+```
+
+### Windows:
+
+Run the following PowerShell command to find your IP address:
+
+```powershell
+(Get-NetIPAddress | Where-Object { $_.AddressState -eq "Preferred" -and $_.ValidLifetime -lt "24:00:00" }).IPAddress
+```
+
+Update the `export COPPELIA_SIM_IP` line in `scripts/setup.bash` with your IP address:
+
+```bash
+export COPPELIA_SIM_IP="your.ip.address"
+```
+
+---
+
+## 6. Start CoppeliaSim
+
+### macOS:
+
+Run the following command in the terminal (ensure your virtual environment is active):
+
+```shell
+zsh ./scripts/start_coppelia_sim.zsh ./scenes/Robobo_Scene.ttt
+```
+
+### Windows:
+
+Run the following command in PowerShell (ensure your virtual environment is active):
+
+```powershell
+./scripts/start_coppelia_sim.ps1 ./scenes/Robobo_Scene.ttt
+```
+
+---
+
+## 7. Run the Simulation
+
+### macOS:
+
+- Launch Docker Engine.
+- Depending on your hardware, run:
+
+  ```shell
+  # Intel Macs
+  bash ./scripts/run.sh --simulation
+
+  # Apple Silicon Macs
+  zsh ./scripts/run_apple_silicon.zsh --simulation
+  ```
+
+### Windows:
+
+- Launch Docker Engine.
+- Run the following command:
+
+  ```powershell
+  ./scripts/run.ps1 --simulation
+  ```
+
+---
+
+## 8. Verify the Setup
+
+If the setup is successful, you should see the Robobo move and output similar to the provided example. Refer to `full_project_setup/catkin_ws/src/learning_machines/scripts/learning_robobo_controller.py` and `test_actions.py` for the executed code.
+
+---
+
+Congratulations! You have successfully set up the robot simulator on your machine.
