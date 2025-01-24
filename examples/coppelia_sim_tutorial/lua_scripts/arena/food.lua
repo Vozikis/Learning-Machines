@@ -42,9 +42,9 @@ function collect_food(handle)
     -- up. The bag checks to eat it, if it's not already eaten. It's not a rabbit
     if not already_eaten[handle] then
         --print(handle)
-        already_eaten[handle] = true
+        -- already_eaten[handle] = true
         pos = sim.getObjectPosition(handle, -1)
-        pos[3] = pos[3] + 1
+        pos[2] = pos[2] + random.uniform(-0.1, 0.1)
         sim.setObjectPosition(handle, -1, pos)
         food_collected = food_collected + 1
         print("Collected food " .. food_collected)
